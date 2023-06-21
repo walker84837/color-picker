@@ -1,0 +1,128 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+
+:root {
+  --text-color: #1bdd86;
+  --background-color: #0e2018;
+  --fonts: 'Open Sans', Helvetica, Arial, sans-serif;
+  --border-color: #327b77;
+  --text-bg-color: #264a43;
+}
+
+* {
+  font-family: var(--fonts);
+  font-size: 1em;
+  text-align: center;
+  color: var(--text-color);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--background-color);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(128ch, calc(100% - 4rem));
+  margin-inline: auto;
+  padding: 1.5rem;
+}
+
+footer {
+  background-color: #3145437f;
+  padding: 1.5rem;
+  font-size: 0.875em;
+}
+
+button {
+  background-color: #4e7469;
+  border: none;
+  padding: 0.625em 1.25em;
+  cursor: pointer;
+  border-radius: 1em;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+strong {
+  font-weight: 500;
+}
+
+label {
+  font-size: 1em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+input {
+  background-color: #2b3432;
+  border-color: var(--border-color);
+  width: 15em;
+  height: 1.875em;
+  margin-bottom: 1rem;
+  border-radius: 0.5em;
+}
+
+a {
+  color: var(--text-color);
+  text-align: center;
+  text-decoration: underline;
+  transition: all 0.25s ease-in-out;
+}
+
+a:hover {
+  color: #738c73;
+  text-decoration: underline;
+}
+
+mark {
+  background-color: #27ac7e7f;
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+h1 {
+  font-weight: 800;
+  font-size: 2em;
+}
+
+h2 {
+  font-weight: 700;
+  font-size: 1.5625em;
+}
+
+h3 {
+  font-weight: 600;
+  font-size: 1.325em;
+}
+
+textarea {
+  background-color: var(--text-bg-color);
+  border-color: var(--border-color);
+  border-radius: 1em;
+  margin-bottom: 0.5rem;
+  margin-top: 0.5rem;
+  font-weight: 400;
+  font-size: 0.85em;
+}
+
+p {
+  font-weight: 300;
+  text-align: justify;
+}
+
+code {
+  font-size: 0.875em;
+  font-weight: 400;
+  font-family: 'Inconsolata', 'Menlo', 'Courier New', Courier, monospace;
+}
+
+::selection {
+  background-color: #27ac63ce;
+}
