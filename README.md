@@ -1,18 +1,10 @@
-# Development
+# Color picker
 
-Your new bare-bones project includes minimal organization with a single `main.rs` file and a few assets.
+Just the code from [the original](https://gist.github.com/walker84837/66eb37d72d1bc3c98221cf4e1b83f724) one I made, but rewritten in Rust using [Dioxus](https://dioxuslabs.com), with some changes to the CSS.
 
-```
-project/
-├─ assets/ # Any assets that are used by the app should be placed here
-├─ src/
-│  ├─ main.rs # main.rs is the entry point to your application and currently contains all components for the app
-├─ Cargo.toml # The Cargo.toml file defines the dependencies and feature flags for your project
-```
+### Run this project
 
-### Serving Your App
-
-Run the following command in the root of your project to start developing with the default platform:
+Run the following command in the root of the repo to start developing for the web:
 
 ```bash
 dx serve
@@ -23,3 +15,10 @@ To run for a different platform, use the `--platform platform` flag. E.g.
 dx serve --platform desktop
 ```
 
+## Contributing
+
+I like to admit I'm not a very good web developer by any chance, so if you see something that doesn't look right, please make an issue or a PR!
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
