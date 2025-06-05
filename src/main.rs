@@ -76,7 +76,7 @@ fn App() -> Element {
             }
             p {
                 class: "description",
-                "Just a simple color picker which uses your system's (or browser) picker dialog."
+                "Just a simple color picker which uses your system's (or browser) picker dialog. "
                 "Click on the color to toggle hex formats: hex and RGB."
             }
         }
