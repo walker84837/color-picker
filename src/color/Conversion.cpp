@@ -15,6 +15,7 @@ auto rgbToHsv(const colorm::Rgb& rgb) -> std::tuple<double, double, double> {
     double delta = cmax - cmin;
 
     double h = 0.0;
+    // Hue is degenerate when all RGB channels are equal (achromatic)
     if (delta > 1e-10) {
         if (cmax == r) {
             h = 60.0 * std::fmod((g - b) / delta, 6.0);
@@ -28,6 +29,7 @@ auto rgbToHsv(const colorm::Rgb& rgb) -> std::tuple<double, double, double> {
         h += 360.0;
     }
 
+    // Saturation is zero when max is zero (no color intensity)
     double s = (cmax > 1e-10) ? delta / cmax : 0.0;
     double v = cmax;
 
@@ -86,6 +88,7 @@ auto rgbToCmyk(const colorm::Rgb& rgb) -> std::tuple<double, double, double, dou
     double c;
     double m;
     double y;
+    // Pure black has no chromatic component; avoid division by (1 - k)
     if (k > 1.0 - 1e-10) {
         c = m = y = 0.0;
     } else {

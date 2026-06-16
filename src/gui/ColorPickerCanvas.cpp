@@ -9,11 +9,13 @@ constexpr int kGamutSearchIterations = 12;
 constexpr double kHueStripLightness = 0.55;
 constexpr double kHueStripChroma = 0.2;
 
+/** Binary search for the highest displayable chroma at a given lightness and hue */
 auto maxDisplayableChroma(double lightness, double hue, double chromaUpperBound) -> double {
     if (chromaUpperBound <= 0.0) {
         return 0.0;
     }
 
+    // Not all Oklch coordinates map to displayable sRGB; binary search finds the gamut boundary
     colorm::Oklch upper(lightness, chromaUpperBound, hue);
     if (upper.isDisplayable()) {
         return chromaUpperBound;
@@ -96,9 +98,11 @@ auto ColorPickerCanvas::hitTestColorArea(int x, int y, double& l, double& c) con
     const int cx = std::clamp(x, ax, ax + aw - 1);
     const int cy = std::clamp(y, ay, ay + ah - 1);
 
+    // Invert Y so top of the rectangle maps to L=1 (white), bottom to L=0 (black)
     l = 1.0 - (static_cast<double>(cy - ay) / (ah > 1 ? ah - 1 : 1));
     l = std::clamp(l, 0.0, 1.0);
 
+    // Scale chroma by the maximum displayable value at this lightness row
     const double hue = colorm::Oklch(m_color.rgb()).hue();
     const double rowMax = maxDisplayableChroma(l, hue, m_maxChroma);
 
@@ -118,6 +122,7 @@ auto ColorPickerCanvas::hitTestHueStrip(int x, int y, double& h) const -> bool {
     auto sw = m_hueStripWidth;
     auto sh = stripHeight();
 
+    // Strict bounds on initial hit; during drag, clamping below handles out-of-bounds
     if (m_dragTarget == DragTarget::None) {
         if (x < sx || x >= sx + sw || y < sy || y >= sy + sh) {
             return false;
@@ -150,6 +155,7 @@ void ColorPickerCanvas::rebuildCache() {
     }
 }
 
+/** Clamps a double to [0, 255] and converts to unsigned char */
 auto clamp8 = [](double v) -> unsigned char { return static_cast<unsigned char>(std::clamp(v, 0.0, 255.0)); };
 
 /**
@@ -183,6 +189,7 @@ void ColorPickerCanvas::renderHueStrip(wxImage& image) {
     auto w = image.GetWidth();
     auto h = image.GetHeight();
 
+    // Render each row at a fixed lightness and chroma so the strip shows hue transitions cleanly
     for (int y = 0; y < h; y++) {
         auto hue = 360.0 * static_cast<double>(y) / (h > 1 ? h - 1 : 1);
         const double cMax = maxDisplayableChroma(kHueStripLightness, hue, kHueStripChroma);
@@ -228,7 +235,7 @@ void ColorPickerCanvas::OnPaint(wxPaintEvent& /*unused*/) {
     gc->SetBrush(*wxTRANSPARENT_BRUSH);
     gc->DrawRectangle(colorAreaX(), colorAreaY(), colorAreaWidth(), colorAreaHeight());
 
-    // crosshair on color area
+    // Crosshair position: map (L, C) back to pixel coordinates matching the hit-test math
     const double l = m_color.lightness();
     const double rowMax = maxDisplayableChroma(l, hue, m_maxChroma);
 
@@ -241,6 +248,7 @@ void ColorPickerCanvas::OnPaint(wxPaintEvent& /*unused*/) {
     } else {
         cx = 0;
     }
+    // Invert Y so L=1 maps to the top of the rectangle
     auto cy = static_cast<int>((1.0 - l) * (ah > 1 ? ah - 1 : 1));
 
     cx += colorAreaX();
@@ -338,10 +346,14 @@ void ColorPickerCanvas::OnMouseMove(wxMouseEvent& event) {
         auto ok = colorm::Oklch(m_color.rgb());
         ok.setHue(h);
 
-        // Keep the relative chroma position when hue changes
+        // Preserve the relative chroma position across hue changes so the user
+        // does not jump to a completely different saturation when dragging the hue strip.
+        // Absolute chroma limits vary per-row (different gamut boundaries), so we
+        // scale the old ratio to the new row's max displayable chroma.
         double oldL = ok.lightness();
         double oldH = colorm::Oklch(m_color.rgb()).hue();
         double oldRowMax = maxDisplayableChroma(oldL, oldH, m_maxChroma);
+        // Avoid division by zero when the old row has no displayable chroma
         double relativeC = (oldRowMax > 1e-6) ? (ok.chroma() / oldRowMax) : 0.0;
 
         double newRowMax = maxDisplayableChroma(oldL, h, m_maxChroma);
@@ -359,6 +371,7 @@ void ColorPickerCanvas::OnMouseMove(wxMouseEvent& event) {
 }
 
 void ColorPickerCanvas::OnMouseUp(wxMouseEvent& /*unused*/) {
+    // Only release if we were actively dragging (ignore stray up events)
     if (m_dragTarget != DragTarget::None) {
         m_dragTarget = DragTarget::None;
         if (HasCapture()) {

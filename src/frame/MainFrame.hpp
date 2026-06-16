@@ -22,6 +22,7 @@ class PalettePanel;
  */
 class MainFrame : public wxFrame {
 public:
+    /** Constructs the window, notebook, menu bar, and all tabs */
     explicit MainFrame(const wxString& title);
 
 private:
@@ -36,9 +37,13 @@ private:
     HarmonyPanel* m_harmonyPanel = nullptr;
     PalettePanel* m_palettePanel = nullptr;
 
+    /** Builds the Picker tab: canvas, preview, sliders */
     auto createPickerTab() -> wxPanel*;
+    /** Builds the Convert tab: color comparison and WCAG */
     auto createConvertTab() -> wxPanel*;
+    /** Builds the Harmonies tab: generated color schemes */
     auto createHarmonyTab() -> wxPanel*;
+    /** Builds the Palette tab: image loading and extraction */
     auto createPaletteTab() -> wxPanel*;
 
     /**
@@ -48,6 +53,8 @@ private:
      */
     void onColorChanged(const Color& color);
 
+    /** Handles File > Exit */
     void OnExit(wxCommandEvent& event);
+    /** Handles Help > About */
     void OnAbout(wxCommandEvent& event);
 };

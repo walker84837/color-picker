@@ -9,8 +9,10 @@
 
 class HarmonyPanel : public wxPanel {
 public:
+    /** Constructs the harmony schemes panel with placeholder */
     explicit HarmonyPanel(wxWindow* parent);
 
+    /** Generates and displays harmony swatches for the given color */
     void setColor(const Color& color);
 
     std::function<void(const Color&)> onColorChanged;
@@ -29,5 +31,5 @@ private:
     wxStaticText* m_placeholder = nullptr;
     std::vector<Scheme> m_schemes;
 
-    void rebuildSwatches();
 };
+

@@ -9,8 +9,10 @@
 
 class PalettePanel : public wxPanel {
 public:
+    /** Constructs the palette extraction tab */
     explicit PalettePanel(wxWindow* parent);
 
+    /** Updates the selection state on existing swatches */
     void setColor(const Color& color);
 
     std::function<void(const Color&)> onColorChanged;
@@ -29,14 +31,18 @@ private:
     std::vector<ColorSwatch*> m_swatches;
     int m_numColors = 8;
 
-    // Stored image data for recalculation
+    // Stored pixel data for recalculation without reloading
     std::vector<unsigned char> m_pixels;
     int m_imageWidth = 0;
     int m_imageHeight = 0;
     bool m_hasImage = false;
 
+    /** Loads an image from disk and extracts its palette */
     void loadImage(const wxString& path);
+    /** Re-runs palette extraction on the loaded image */
     void recalculate();
+    /** Runs k-means in Oklab space and returns sorted palette */
     static auto extractPalette(const unsigned char* pixels, int width, int height, int numColors) -> PaletteResult;
+    /** Rebuilds the swatch display for the given palette */
     void displayPalette(const PaletteResult& result);
 };

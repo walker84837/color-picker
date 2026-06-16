@@ -43,8 +43,15 @@ ConvertPanel::ConvertPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
     topRow->Add(boxBSizer, 1, wxEXPAND | wxLEFT, FromDIP(4));
 
     outer->Add(topRow, 0, wxEXPAND | wxALL, FromDIP(5));
+    outer->Add(buildComparisonSection(), 0, wxEXPAND | wxALL, FromDIP(5));
+    SetSizer(outer);
 
-    // -- Comparison section --
+    // Events
+    m_hexInputB->Bind(wxEVT_TEXT_ENTER, &ConvertPanel::OnHexInput, this);
+    m_hexInputB->Bind(wxEVT_KILL_FOCUS, &ConvertPanel::OnHexKillFocus, this);
+}
+
+auto ConvertPanel::buildComparisonSection() -> wxSizer* {
     auto* compSizer = new wxBoxSizer(wxVERTICAL);
 
     auto addHeader = [&](const wxString& title, bool isMain) -> void {
@@ -111,13 +118,7 @@ ConvertPanel::ConvertPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
     addWcagGridRow(wcagGrid, "AAA Large:", m_aaaLargeText);
     compSizer->Add(wcagGrid, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, FromDIP(10));
 
-    outer->Add(compSizer, 0, wxEXPAND | wxALL, FromDIP(5));
-
-    SetSizer(outer);
-
-    // Events
-    m_hexInputB->Bind(wxEVT_TEXT_ENTER, &ConvertPanel::OnHexInput, this);
-    m_hexInputB->Bind(wxEVT_KILL_FOCUS, &ConvertPanel::OnHexKillFocus, this);
+    return compSizer;
 }
 
 void ConvertPanel::setColorA(const Color& color) {
@@ -128,7 +129,7 @@ void ConvertPanel::setColorA(const Color& color) {
     m_updating = false;
 }
 
-bool ConvertPanel::parseHex(const wxString& str, colorm::Rgb& rgb) {
+auto ConvertPanel::parseHex(const wxString& str) -> std::optional<colorm::Rgb> {
     auto s = str;
     s.Trim(true).Trim(false);
     if (s.StartsWith("#")) {
@@ -143,21 +144,20 @@ bool ConvertPanel::parseHex(const wxString& str, colorm::Rgb& rgb) {
     }
 
     if (s.length() != 6) {
-        return false;
+        return std::nullopt;
     }
 
     unsigned long val;
     if (!s.ToULong(&val, 16)) {
-        return false;
+        return std::nullopt;
     }
 
-    rgb = colorm::Rgb(static_cast<unsigned int>(val));
-    return true;
+    return colorm::Rgb(static_cast<unsigned int>(val));
 }
 
 void ConvertPanel::updateColorB(const wxString& hex) {
-    colorm::Rgb rgb;
-    if (!parseHex(hex, rgb)) {
+    auto parsed = parseHex(hex);
+    if (!parsed.has_value()) {
         m_colorBSet = false;
         m_validationHint->SetLabelText("Invalid hex format");
         m_validationHint->SetForegroundColour(wxColour(200, 0, 0));
@@ -167,7 +167,7 @@ void ConvertPanel::updateColorB(const wxString& hex) {
         return;
     }
 
-    m_colorB = Color(rgb);
+    m_colorB = Color(*parsed);
     m_colorBSet = true;
     m_validationHint->SetLabelText("Valid hex color");
     m_validationHint->SetForegroundColour(wxColour(0, 140, 0));
@@ -216,6 +216,7 @@ void ConvertPanel::updateComparison() {
     setText(m_contrastText, wxString::Format("%.2f : 1", contrast));
 
     auto setWcag = [&](wxStaticText* t, double ratio, double threshold) -> void {
+        // 0.005 tolerance: avoid marginal FAIL on exact threshold due to floating-point rounding
         bool pass = ratio >= threshold - 0.005;
         auto label = wxString::Format("%s  (%.2f : 1, %.1f required)", pass ? "PASS" : "FAIL", ratio, threshold);
         t->SetLabelText(label);

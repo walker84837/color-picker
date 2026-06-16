@@ -2,14 +2,17 @@
 
 #include "color/Color.hpp"
 
+#include <optional>
 #include <wx/wx.h>
 
 class ColorPreviewPanel;
 
 class ConvertPanel : public wxPanel {
 public:
+    /** Constructs the convert tab with color A/B preview and comparison */
     explicit ConvertPanel(wxWindow* parent);
 
+    /** Sets the active color (color A) */
     void setColorA(const Color& color);
 
 private:
@@ -33,10 +36,18 @@ private:
     wxStaticText* m_aaaNormalText;
     wxStaticText* m_aaaLargeText;
 
+    /** Parses hex input from the text field */
     void OnHexInput(wxCommandEvent& event);
+    /** Parses hex input when the field loses focus */
     void OnHexKillFocus(wxFocusEvent& event);
 
-    static auto parseHex(const wxString& str, colorm::Rgb& rgb) -> bool;
+    /** Builds the comparison section (Delta E and WCAG) */
+    auto buildComparisonSection() -> wxSizer*;
+
+    /** Validates hex and updates color B */
+    static auto parseHex(const wxString& str) -> std::optional<colorm::Rgb>;
+    /** Updates color B from hex string and refreshes comparison */
     void updateColorB(const wxString& hex);
+    /** Recalculates Delta E and WCAG metrics */
     void updateComparison();
 };

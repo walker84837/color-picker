@@ -74,16 +74,17 @@ void ColorPreviewPanel::setColor(const Color& color) {
     auto [h, s, v] = conv::rgbToHsv(rgbCrgb);
     auto [c, m, y, k] = conv::rgbToCmyk(rgbCrgb);
 
-    m_rows[0].value->ChangeValue(hex); // HEX
-    m_rows[1].value->ChangeValue(wxString::Format("rgb(%d, %d, %d)", static_cast<int>(rgbCrgb.red8()),
-                                                  static_cast<int>(rgbCrgb.green8()),
-                                                  static_cast<int>(rgbCrgb.blue8())));                // rgb()
-    m_rows[2].value->ChangeValue(ok.css());                                                           // oklch()
-    m_rows[3].value->ChangeValue(lch.css());                                                          // lch()
-    m_rows[4].value->ChangeValue(hsl.css());                                                          // hsl()
-    m_rows[5].value->ChangeValue(wxString::Format("hsv(%.1f, %.1f%%, %.1f%%)", h, s * 100, v * 100)); // hsv()
-    m_rows[6].value->ChangeValue(
-        wxString::Format("cmyk(%.1f%%, %.1f%%, %.1f%%, %.1f%%)", c * 100, m * 100, y * 100, k * 100)); // cmyk()
+    m_rows[RowIndex::Hex].value->ChangeValue(hex);
+    m_rows[RowIndex::Rgb].value->ChangeValue(wxString::Format("rgb(%d, %d, %d)", static_cast<int>(rgbCrgb.red8()),
+                                                               static_cast<int>(rgbCrgb.green8()),
+                                                               static_cast<int>(rgbCrgb.blue8())));
+    m_rows[RowIndex::Oklch].value->ChangeValue(ok.css());
+    m_rows[RowIndex::Lch].value->ChangeValue(lch.css());
+    m_rows[RowIndex::Hsl].value->ChangeValue(hsl.css());
+    m_rows[RowIndex::Hsv].value->ChangeValue(
+        wxString::Format("hsv(%.1f, %.1f%%, %.1f%%)", h, s * 100, v * 100));
+    m_rows[RowIndex::Cmyk].value->ChangeValue(
+        wxString::Format("cmyk(%.1f%%, %.1f%%, %.1f%%, %.1f%%)", c * 100, m * 100, y * 100, k * 100));
 }
 
 void ColorPreviewPanel::onCopy(size_t index) {

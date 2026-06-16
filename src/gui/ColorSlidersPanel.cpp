@@ -55,6 +55,10 @@ void ColorSlidersPanel::buildSection(wxSizer* sizer, Space space, const wxString
         text->Bind(wxEVT_KILL_FOCUS, &ColorSlidersPanel::onTextFocus, this);
 
         group.rows.push_back({.slider = slider, .text = text, .scale = scales[i], .precision = precisions[i]});
+
+        auto gi = m_groups.size();
+        m_widgetMap[slider] = {gi, i};
+        m_widgetMap[text] = {gi, i};
     }
 
     m_groups.push_back(std::move(group));
@@ -105,16 +109,15 @@ void ColorSlidersPanel::onSlider(wxCommandEvent& event) {
         return;
     }
 
-    for (size_t g = 0; g < m_groups.size(); g++) {
-        for (size_t r = 0; r < m_groups[g].rows.size(); r++) {
-            if (m_groups[g].rows[r].slider == slider) {
-                double val = static_cast<double>(slider->GetValue()) / m_groups[g].rows[r].scale;
-                m_groups[g].rows[r].text->ChangeValue(wxString::Format("%.*f", m_groups[g].rows[r].precision, val));
-                fireColor(g);
-                return;
-            }
-        }
+    auto it = m_widgetMap.find(slider);
+    if (it == m_widgetMap.end()) {
+        return;
     }
+
+    auto [g, r] = it->second;
+    double val = static_cast<double>(slider->GetValue()) / m_groups[g].rows[r].scale;
+    m_groups[g].rows[r].text->ChangeValue(wxString::Format("%.*f", m_groups[g].rows[r].precision, val));
+    fireColor(g);
 }
 
 void ColorSlidersPanel::onTextEnter(wxCommandEvent& event) {
@@ -127,22 +130,21 @@ void ColorSlidersPanel::onTextEnter(wxCommandEvent& event) {
         return;
     }
 
-    for (size_t g = 0; g < m_groups.size(); g++) {
-        for (size_t r = 0; r < m_groups[g].rows.size(); r++) {
-            if (m_groups[g].rows[r].text == text) {
-                double val;
-                if (!text->GetValue().ToDouble(&val)) {
-                    return;
-                }
-
-                int sv = static_cast<int>(std::round(val * m_groups[g].rows[r].scale));
-                sv = std::clamp(sv, m_groups[g].rows[r].slider->GetMin(), m_groups[g].rows[r].slider->GetMax());
-                m_groups[g].rows[r].slider->SetValue(sv);
-                fireColor(g);
-                return;
-            }
-        }
+    auto it = m_widgetMap.find(text);
+    if (it == m_widgetMap.end()) {
+        return;
     }
+
+    auto [g, r] = it->second;
+    double val;
+    if (!text->GetValue().ToDouble(&val)) {
+        return;
+    }
+
+    int sv = static_cast<int>(std::round(val * m_groups[g].rows[r].scale));
+    sv = std::clamp(sv, m_groups[g].rows[r].slider->GetMin(), m_groups[g].rows[r].slider->GetMax());
+    m_groups[g].rows[r].slider->SetValue(sv);
+    fireColor(g);
 }
 
 void ColorSlidersPanel::onTextFocus(wxFocusEvent& event) {
@@ -157,24 +159,23 @@ void ColorSlidersPanel::onTextFocus(wxFocusEvent& event) {
         return;
     }
 
-    for (size_t g = 0; g < m_groups.size(); g++) {
-        for (size_t r = 0; r < m_groups[g].rows.size(); r++) {
-            if (m_groups[g].rows[r].text == text) {
-                double val;
-                if (!text->GetValue().ToDouble(&val)) {
-                    event.Skip();
-                    return;
-                }
-
-                int sv = static_cast<int>(std::round(val * m_groups[g].rows[r].scale));
-                sv = std::clamp(sv, m_groups[g].rows[r].slider->GetMin(), m_groups[g].rows[r].slider->GetMax());
-                m_groups[g].rows[r].slider->SetValue(sv);
-                fireColor(g);
-                event.Skip();
-                return;
-            }
-        }
+    auto it = m_widgetMap.find(text);
+    if (it == m_widgetMap.end()) {
+        event.Skip();
+        return;
     }
+
+    auto [g, r] = it->second;
+    double val;
+    if (!text->GetValue().ToDouble(&val)) {
+        event.Skip();
+        return;
+    }
+
+    int sv = static_cast<int>(std::round(val * m_groups[g].rows[r].scale));
+    sv = std::clamp(sv, m_groups[g].rows[r].slider->GetMin(), m_groups[g].rows[r].slider->GetMax());
+    m_groups[g].rows[r].slider->SetValue(sv);
+    fireColor(g);
     event.Skip();
 }
 
@@ -182,11 +183,14 @@ void ColorSlidersPanel::fireColor(size_t groupIdx) {
     auto& group = m_groups[groupIdx];
     std::vector<double> vals;
 
+    // Convert slider integer positions back to real-valued color components
     vals.reserve(group.rows.size());
     for (auto& row : group.rows) {
         vals.push_back(static_cast<double>(row.slider->GetValue()) / row.scale);
     }
 
+    // Reconstruct a Color from whichever space is active; the Color constructor
+    // handles clipping out-of-gamut coordinates back to displayable sRGB
     Color c;
     switch (group.space) {
     case Space::Oklch:

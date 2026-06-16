@@ -6,6 +6,7 @@
 #include <wx/stattext.h>
 
 namespace {
+/** Shifts hue by degrees, wrapping to [0, 360] */
 auto rotateHue(const Color& c, double degrees) -> Color {
     auto oklch = colorm::Oklch(c.rgb());
     double h = oklch.hue() + degrees;
@@ -18,25 +19,53 @@ auto rotateHue(const Color& c, double degrees) -> Color {
     return Color(colorm::Rgb(colorm::Oklch(oklch.lightness(), oklch.chroma(), h)));
 }
 
+/** Base + adjacent hues on both sides */
 auto analogous(const Color& c) -> std::vector<Color> {
     return {c, rotateHue(c, -30.0), rotateHue(c, 30.0), rotateHue(c, -60.0), rotateHue(c, 60.0)};
 }
 
+/** Opposite hue + near-complement for split effect */
 auto complementary(const Color& c) -> std::vector<Color> {
     return {c, rotateHue(c, 180.0), rotateHue(c, 150.0), rotateHue(c, 210.0)};
 }
 
+/** Three hues evenly spaced 120 degrees apart */
 auto triad(const Color& c) -> std::vector<Color> {
     return {c, rotateHue(c, 120.0), rotateHue(c, 240.0)};
 }
 
+/** Four hues forming a rectangle on the wheel */
 auto tetrad(const Color& c) -> std::vector<Color> {
     return {c, rotateHue(c, 90.0), rotateHue(c, 180.0), rotateHue(c, 270.0)};
 }
 
+/** Base + two hues adjacent to the complement */
 auto splitComplementary(const Color& c) -> std::vector<Color> {
     return {c, rotateHue(c, 150.0), rotateHue(c, 210.0)};
 }
+
+struct SchemeDef {
+    const char* name;
+    const char* desc;
+    std::vector<Color> (*fn)(const Color&);
+};
+constexpr SchemeDef kSchemes[] = {
+    {"Analogous",
+     "Colors next to each other on the wheel. Creates calm, comfortable designs.",
+     analogous},
+    {"Complementary",
+     "Colors opposite on the wheel. Creates high contrast, vibrant looks.",
+     complementary},
+    {"Triad",
+     "Three colors evenly spaced. Offers strong visual contrast while retaining balance.",
+     triad},
+    {"Tetrad",
+     "Four colors forming a rectangle. Rich, complex color schemes.",
+     tetrad},
+    {"Split Complementary",
+     "Base + two colors adjacent to its complement. Contrast like complementary but less tension.",
+     splitComplementary},
+};
 } // namespace
 
 HarmonyPanel::HarmonyPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
@@ -49,27 +78,7 @@ HarmonyPanel::HarmonyPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
     m_placeholder->SetForegroundColour(wxColour(128, 128, 128));
     sizer->Add(m_placeholder, 0, wxALL, 10);
 
-    struct SchemeInfo {
-        wxString name;
-        wxString desc;
-        std::vector<Color> (*fn)(const Color&);
-    };
-    std::vector<SchemeInfo> infos = {
-        {.name = "Analogous",
-         .desc = "Colors next to each other on the wheel. Creates calm, comfortable designs.",
-         .fn = analogous},
-        {.name = "Complementary",
-         .desc = "Colors opposite on the wheel. Creates high contrast, vibrant looks.",
-         .fn = complementary},
-        {.name = "Triad",
-         .desc = "Three colors evenly spaced. Offers strong visual contrast while retaining balance.",
-         .fn = triad},
-        {.name = "Tetrad", .desc = "Four colors forming a rectangle. Rich, complex color schemes.", .fn = tetrad},
-        {.name = "Split Complementary",
-         .desc = "Base + two colors adjacent to its complement. Contrast like complementary but less tension.",
-         .fn = splitComplementary}};
-
-    for (auto& info : infos) {
+    for (auto& info : kSchemes) {
         auto* label = new wxStaticText(this, wxID_ANY, info.name);
         auto font = label->GetFont();
         font.SetWeight(wxFONTWEIGHT_BOLD);
@@ -98,12 +107,6 @@ HarmonyPanel::HarmonyPanel(wxWindow* parent) : wxPanel(parent, wxID_ANY) {
     SetSizer(sizer);
 }
 
-void HarmonyPanel::rebuildSwatches() {
-    for (auto& scheme : m_schemes) {
-        scheme.swatches.clear();
-    }
-}
-
 void HarmonyPanel::setColor(const Color& color) {
     m_color = color;
 
@@ -111,18 +114,9 @@ void HarmonyPanel::setColor(const Color& color) {
         m_placeholder->Show(false);
     }
 
-    struct SchemeInfo {
-        wxString name;
-        std::vector<Color> (*fn)(const Color&);
-    };
-    std::vector<SchemeInfo> infos = {{.name = "Analogous", .fn = analogous},
-                                     {.name = "Complementary", .fn = complementary},
-                                     {.name = "Triad", .fn = triad},
-                                     {.name = "Tetrad", .fn = tetrad},
-                                     {.name = "Split Complementary", .fn = splitComplementary}};
-
-    for (size_t i = 0; i < infos.size() && i < m_schemes.size(); i++) {
-        auto colors = infos[i].fn(m_color);
+    // Walk both arrays in lockstep; the runtime vector always matches kSchemes in practice
+    for (size_t i = 0; i < std::size(kSchemes) && i < m_schemes.size(); i++) {
+        auto colors = kSchemes[i].fn(m_color);
         auto* sizer = m_schemes[i].swatchSizer;
 
         sizer->Clear(true);

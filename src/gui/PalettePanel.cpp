@@ -83,6 +83,7 @@ void PalettePanel::loadImage(const wxString& path) {
     m_emptyLabel->Show(false);
 
     wxImage img(w, h, pixels, true);
+    // Scale down preserving aspect ratio; never upscale beyond original width
     int thumbW = std::min(FromDIP(200), w);
     int thumbH = static_cast<int>(thumbW * static_cast<double>(h) / w);
     wxImage thumb = img.Scale(thumbW, thumbH, wxIMAGE_QUALITY_HIGH);
@@ -109,6 +110,8 @@ auto PalettePanel::extractPalette(const unsigned char* pixels, int width, int he
     // meaning distances between colors match human perception better than RGB.
     int totalPixels = width * height;
     int maxSamples = 10000;
+    // Regular stride rather than random sampling: deterministic, cache-friendly, and
+    // still representative because natural images have local spatial correlation
     int step = std::max(1, totalPixels / maxSamples);
 
     int nobs = 0;
@@ -186,6 +189,7 @@ void PalettePanel::displayPalette(const PalettePanel::PaletteResult& result) {
         auto* hex = new wxStaticText(m_paletteArea, wxID_ANY, result.colors[i].hex());
         col->Add(hex, 0, wxALIGN_CENTER_HORIZONTAL | wxLEFT | wxRIGHT, FromDIP(2));
 
+        // Avoid division by zero when all pixels were filtered out
         double pct = (totalSamples > 0) ? (100.0 * result.counts[i] / totalSamples) : 0.0;
         auto* count = new wxStaticText(m_paletteArea, wxID_ANY, wxString::Format("%.1f%%", pct));
         count->SetForegroundColour(wxColour(128, 128, 128));
