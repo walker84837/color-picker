@@ -29,11 +29,11 @@ cmake --preset release && cmake --build --preset release
 
 ## Dependencies
 
-- **wxWidgets**: GUI framework
-- **colorm**: Modern C++ color library
-- **stb_image**: Image loading
-- **ltla::kmeans**: K-means clustering implementation
+- [**wxWidgets**](https://github.com/wxWidgets/wxWidgets): GUI framework
+- [**colorm**](https://github.com/soreja/colorm): Modern C++ color library
+- **stb_image**: Image loading ([cmake wrapper](https://github.com/gracicot/stb-cmake) | [actual c lib](https://github.com/nothings/stb))
+- [**ltla::kmeans**](https://github.com/libscran/kmeans): K-means clustering implementation
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
