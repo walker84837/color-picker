@@ -1,0 +1,8 @@
+---
+Checks: >
+  modernize-*,
+  performance-*,
+  readability-*
+WarningsAsErrors: false
+HeaderFilterRegex: '.*'
+FormatStyle: file

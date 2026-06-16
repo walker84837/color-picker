@@ -1,0 +1,8 @@
+{
+  "name": "color-picker",
+  "version": "0.1.0",
+  "dependencies": [
+    "wxwidgets"
+  ],
+  "builtin-baseline": "92c4c07f4f97ce28adbe1fe335c5480ce2ef1b1e"
+}

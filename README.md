@@ -1,24 +1,39 @@
-# Color picker
+# color-picker
 
-Just the code from [the original](https://gist.github.com/walker84837/66eb37d72d1bc3c98221cf4e1b83f724) one I made, but rewritten in Rust using [Dioxus](https://dioxuslabs.com), with some changes to the CSS.
+A C++23 desktop color picker built with wxWidgets, featuring advanced color space support, harmony generation, and palette extraction from images.
 
-### Run this project
+## Features
 
-Run the following command in the root of the repo to start developing for the web:
+- **Picker**: Custom-drawn Oklch hue strip and L x C area for perceptually accurate color selection.
+- **Convert**: Color comparison using CIE76 and CIEDE2000 Delta E, with WCAG contrast evaluation.
+- **Harmonies**: Automatic generation of Analogous, Complementary, Triad, Tetrad, and Split Complementary schemes.
+- **Palette**: K-means clustering in Oklab space to extract the dominant palette from any image.
+
+## Build Requirements
+
+- C++23 compatible compiler (GCC 12+, Clang 15+, or MSVC 19.34+)
+- CMake 3.24+
+- wxWidgets 3.2+
+
+## Build & Run
 
 ```bash
-dx serve
+# Debug build
+cmake --preset debug && cmake --build --preset debug
+./build/color_picker
+
+# Release build
+cmake --preset release && cmake --build --preset release
+./build/color_picker
 ```
 
-To run for a different platform, use the `--platform platform` flag. E.g.
-```bash
-dx serve --platform desktop
-```
+## Dependencies
 
-## Contributing
-
-I like to admit I'm not a very good web developer by any chance, so if you see something that doesn't look right, please make an issue or a PR!
+- **wxWidgets**: GUI framework
+- **colorm**: Modern C++ color library
+- **stb_image**: Image loading
+- **ltla::kmeans**: K-means clustering implementation
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
