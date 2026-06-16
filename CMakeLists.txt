@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.24)
-project(color-picker VERSION 0.1.0 LANGUAGES CXX)
+project(colorsmithy VERSION 0.1.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -44,7 +44,7 @@ add_library(colorm_lib INTERFACE)
 target_include_directories(colorm_lib INTERFACE "${colorm_SOURCE_DIR}")
 target_compile_features(colorm_lib INTERFACE cxx_std_17)
 
-add_executable(color_picker
+add_executable(colorsmithy
   src/main.cpp
   src/frame/App.hpp
   src/frame/App.cpp
@@ -70,11 +70,11 @@ add_executable(color_picker
   src/gui/PalettePanel.cpp
 )
 
-target_include_directories(color_picker PRIVATE
+target_include_directories(colorsmithy PRIVATE
   ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(color_picker PRIVATE
+target_link_libraries(colorsmithy PRIVATE
   ${wx_LIBS}
   stb::image
   ltla::kmeans
@@ -82,5 +82,5 @@ target_link_libraries(color_picker PRIVATE
 )
 
 if(wxWidgets_USE_FILE)
-  target_compile_definitions(color_picker PRIVATE ${wxWidgets_DEFINITIONS})
+  target_compile_definitions(colorsmithy PRIVATE ${wxWidgets_DEFINITIONS})
 endif()

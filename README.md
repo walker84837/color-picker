@@ -1,8 +1,8 @@
-# color-picker
+# colorsmithy
 
 <img width="1920" height="1044" alt="image" src="https://github.com/user-attachments/assets/341a736b-ff73-4f62-baba-65de71a4e0a9" />
 
-A C++23 desktop color picker built with wxWidgets, featuring advanced color space support, harmony generation, and palette extraction from images.
+A C++23 desktop color tool built with wxWidgets, featuring advanced color space support, harmony generation, and palette extraction from images.
 
 ## Features
 
@@ -22,11 +22,11 @@ A C++23 desktop color picker built with wxWidgets, featuring advanced color spac
 ```bash
 # Debug build
 cmake --preset debug && cmake --build --preset debug
-./build/color_picker
+./build/colorsmithy
 
 # Release build
 cmake --preset release && cmake --build --preset release
-./build/color_picker
+./build/colorsmithy
 ```
 
 ## Dependencies

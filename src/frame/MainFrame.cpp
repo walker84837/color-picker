@@ -159,7 +159,7 @@ void MainFrame::OnExit(wxCommandEvent& /*unused*/) {
 
 void MainFrame::OnAbout(wxCommandEvent& /*unused*/) {
     wxAboutDialogInfo info;
-    info.SetName("Color Picker");
+    info.SetName("colorsmithy");
     info.SetVersion("0.1.0");
     info.SetDescription("A desktop color picker with advanced color space support, "
                         "harmony generation, and palette extraction from images.");
