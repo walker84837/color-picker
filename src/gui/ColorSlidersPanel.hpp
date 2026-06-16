@@ -3,6 +3,8 @@
 #include "color/Color.hpp"
 #include "color/Conversion.hpp"
 
+#include <cstdint>
+
 #include <wx/wx.h>
 
 class ColorSlidersPanel : public wxPanel {
