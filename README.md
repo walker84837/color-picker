@@ -1,8 +1,10 @@
 # colorsmithy
 
-<img width="1920" height="1044" alt="image" src="https://github.com/user-attachments/assets/341a736b-ff73-4f62-baba-65de71a4e0a9" />
+> A C++23 desktop color tool built with wxWidgets, featuring advanced color space support, harmony generation, and palette extraction from images.
 
-A C++23 desktop color tool built with wxWidgets, featuring advanced color space support, harmony generation, and palette extraction from images.
+## Preview
+
+<img width="1920" height="1044" alt="image" src="https://github.com/user-attachments/assets/341a736b-ff73-4f62-baba-65de71a4e0a9" />
 
 ## Features
 
